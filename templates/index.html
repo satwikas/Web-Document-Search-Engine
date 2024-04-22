@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Crawler</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Web Crawler</h1>
+        <form id="url-form">
+            <input type="text" id="url-input" placeholder="Enter webpage URL">
+            <button type="button" id="submit-button" onclick="loadWebpage()">Load Webpage</button>
+        </form>
+        <div id="error-message"></div>
+        <div id="iframe-container"></div>
+        <div id="web-crawler-box">
+            <h4>Enter max pages and max depth for above url for web scraping </h4>
+            <div class="search-form">
+                <label for="max_pages">Max Pages:</label>
+                <input type="number" id="max_pages" name="max_pages" required><br><br>
+                
+                <label for="max_depth">Max Depth:</label>
+                <input type="number" id="max_depth" name="max_depth" required><br><br>
+
+                <button onclick="webScrape()" class="search-button">Run Web Crawler</button>
+            </div>
+            <div id="crawler-output"></div>
+        </div>
+        <div id="search-box">
+            <h4>Enter the word to search in the documents and retrieve the top-K ranked results</h4>
+            <div class="search-form">
+                <input type="text" id="query" class="search-input" placeholder="Enter your search query">
+                <button onclick="search()" class="search-button">Search</button>
+            </div>
+            <div id="search-results">
+                <table id="results-table">
+                    <thead>
+                        <tr>
+                            <th>Document ID</th>
+                            <th>Relevance Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Results will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="search-error-message"></div>
+        </div>
+    </div>
+    <script>
+        // // Add event listener for keydown event
+        // document.addEventListener("keydown", function(event) {
+        //     // Check if the Ctrl key is pressed on Windows (keyCode 17) or the Command key on Mac (keyCode 91)
+        //     // Check if the F12 key is pressed (keyCode 123)
+        //     if ((event.ctrlKey && event.keyCode === 123) || (event.metaKey && event.keyCode === 123)) {
+        //         // Prevent the default action of the event (e.g., opening browser developer tools)
+        //         event.preventDefault();
+        //     }
+        // });
+        // // Add event listener for contextmenu event (right-click)
+        // document.addEventListener("contextmenu", function(event) {
+        //     // Prevent the default context menu from appearing
+        //     event.preventDefault();
+        // });
+        function loadWebpage() {
+            var urlInput = document.getElementById('url-input').value;
+            var iframeContainer = document.getElementById('iframe-container');
+            var errorMessage = document.getElementById('error-message');
+            var webCrawlerBox = document.getElementById('web-crawler-box');
+            // Regular expression to validate URL format
+            var urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+
+            if (urlPattern.test(urlInput)) {
+                // Clear error message
+                errorMessage.textContent = '';
+
+                // Create and load iframe with the provided URL
+                var iframe = document.createElement('iframe');
+                iframe.setAttribute('src', urlInput);
+                iframe.setAttribute('width', '100%');
+                iframe.setAttribute('height', '100%');
+                iframe.setAttribute('frameborder', '0');
+            
+                // Clear previous iframe content
+                iframeContainer.innerHTML = '';
+
+                iframe.onload = function() {
+                    console.log('iframe loaded');
+                    // Send a message to the iframe
+                    iframe.contentWindow.postMessage('checkStatus', '*');
+                    // Show the search box upon successful iframe load
+                    webCrawlerBox.style.display = 'block';
+                };
+
+                // Add an event listener to the iframe's onerror event
+                iframe.onerror = function() {
+                console.log('Received message from iframe:', event.data);
+                // Hide the iframe
+                iframe.style.display = 'none';
+                };
+                        // Register event listener for messages from the iframe
+                window.addEventListener('message', function(event) {
+                    console.log('Received message from iframe:', event.data);
+                    // Check if the message indicates that something wasn't found
+                    if (event.data === 'Not Found') {
+                        // If not found, display the search box
+                        webCrawlerBox.style.display = 'none';
+                    }
+                });
+    
+                // Append the new iframe to the container
+                iframeContainer.appendChild(iframe);
+                iframeContainer.style.display = 'block';
+                
+            } else {
+                // Display error message for invalid URL format
+                errorMessage.textContent = 'Invalid URL. Please enter a valid URL.';
+                searchBox.style.display = 'none';
+                iframeContainer.innerHTML = '';
+                
+            }
+        }
+
+        function webScrape() {
+            var urlInput = document.getElementById('url-input');
+            var crawlerOutput = document.getElementById('crawler-output');
+            var searchBox = document.getElementById('search-box');
+            if (urlInput) {
+            var seedUrl = urlInput.value;
+            var maxPages = document.getElementById('max_pages').value;
+            var maxDepth = document.getElementById('max_depth').value;
+            var data = {
+                'seed_url': seedUrl,
+                'max_pages': maxPages,
+                'max_depth': maxDepth
+            };
+            fetch('/runcrawler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    searchBox.style.display='none';
+                    throw new Error('Failed to run crawler: ' + response.statusText);
+                    
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data['message']);
+                crawlerOutput.textContent=data['message'];
+                searchBox.style.display='block';
+
+            })
+            .catch(error => {
+                console.log('Error:', error);
+                crawlerOutput.textContent = 'Error: ' + error.message;
+            });
+        } else {
+            console.log("url-input element not found.");
+        }
+    }
+          
+        function search() {
+            var query = document.getElementById('query').value;
+            var data = { "query": query };
+            var resultsTable = document.getElementById('results-table').getElementsByTagName('tbody')[0];
+            var errorMessage = document.getElementById('search-error-message');
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                    console.log(data)
+                    if (!resultsTable) {
+                        console.error("Failed to search word");
+                        errorMessage.textContent = 'Failed to search word';
+                        return; // Exit the function if the results div is not found
+                    }
+                    resultsTable.innerHTML = ''; // Clear previous results
+                    document.getElementById('results-table').style.display = 'block';
+                        // Check if data is an array and not empty
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(result => {
+                            if (result.score !== 0) {
+                                var row = resultsTable.insertRow();
+                                var cell1 = row.insertCell(0);
+                                var cell2 = row.insertCell(1);
+                                cell1.textContent = result.doc_id;
+                                cell2.textContent = result.score;
+                            }
+                            });
+                            
+                            errorMessage.textContent = '';
+                    } else {
+                        // If no results are returned
+                        document.getElementById('results-table').style.display = 'none';
+                        errorMessage.textContent = 'No results found or invalid search query';
+                    }
+                })
+        }
+
+           
+    </script>
+</body>
+</html>
