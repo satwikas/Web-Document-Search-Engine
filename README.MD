@@ -100,10 +100,10 @@ In the module " Flask-based Processor", the processor effectively handles user q
 Required:
 Initialize using seed URL/Domain, Max Pages, Max Depth.
 - Data Sources:
-Links: Scrapy Documentation(https://scrapy.org/)
-Downloads: Install Scrapy via pip (pip3 install scrapy)
-Access Information: Utilize Scrapy spiders to crawl websites using the command - 
-"scrapy runspider webcrawler.py -a seed_url='{seed_url}' -a max_pages={max_pages} -a max_depth={max_depth}"
+    - Links: Scrapy Documentation(https://scrapy.org/)
+    - Downloads: Install Scrapy via pip (pip3 install scrapy)
+    - Access Information: Utilize Scrapy spiders to crawl websites using the command - 
+    "scrapy runspider webcrawler.py -a seed_url='{seed_url}' -a max_pages={max_pages} -a max_depth={max_depth}"
 
 2. Scikit-Learn based Indexer:
 
@@ -112,9 +112,9 @@ Access Information: Utilize Scrapy spiders to crawl websites using the command -
 Required:
 TF-IDF score/weight representation, Cosine similarity.
 - Data Sources:
-Links: Scikit-Learn Documentation(https://scikit-learn.org/)
-Downloads: Install Scikit-Learn via pip (pip3 install scikit-learn)
-Access Information: Utilize Scikit-Learn's TF-IDF vectorizer and cosine similarity functions.
+    - Links: Scikit-Learn Documentation(https://scikit-learn.org/)
+    - Downloads: Install Scikit-Learn via pip (pip3 install scikit-learn)
+    - Access Information: Utilize Scikit-Learn's TF-IDF vectorizer and cosine similarity functions.
 
 3. Flask-based Processor:
 - Purpose: Handles free text queries in JSON format.
@@ -122,9 +122,9 @@ Access Information: Utilize Scikit-Learn's TF-IDF vectorizer and cosine similari
 Required:
 Query validation/error-checking, Top-K ranked results.
 - Data Sources:
-Links: Flask Documentation(https://flask.palletsprojects.com/)
-Downloads: Install Flask via pip (pip3 install Flask)
-Access Information: Set up Flask routes to handle query processing.
+    - Links: Flask Documentation(https://flask.palletsprojects.com/)
+    - Downloads: Install Flask via pip (pip3 install Flask)
+    - Access Information: Set up Flask routes to handle query processing.
 
 ### TEST CASES:
 
