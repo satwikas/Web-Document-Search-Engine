@@ -10,7 +10,6 @@ class Indexer:
         self.documents = []
         self.index = {}
         self.vectorizer = TfidfVectorizer()
-        # self.vectorizer = TfidfVectorizer(stop_words='english', min_df=1)
 
     def add_document(self, document_id, text):
         self.documents.append((document_id, text))
@@ -19,7 +18,8 @@ class Indexer:
     def build_index(self):
         corpus = [text for _, text in self.documents]
         # print(corpus)
-        tfidf_matrix = self.vectorizer.fit_transform(corpus)  # Fit the vectorizer here
+        # Fit the vectorizer here
+        tfidf_matrix = self.vectorizer.fit_transform(corpus)  
 
         feature_names = self.vectorizer.get_feature_names_out()
         for i, document in enumerate(self.documents): 

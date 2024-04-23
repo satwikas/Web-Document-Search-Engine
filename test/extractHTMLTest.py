@@ -12,9 +12,7 @@ class extractHTMLTest(unittest.TestCase):
 
     def test_extract_text_from_html(self):
         print("1. Starting test_extract_text_from_html...")
-        # Sample HTML content
         sample_html = "<html><body><p>This is a sample paragraph.</p></body></html>"
-
         # Test extract_text_from_html function
         extracted_text = extract_text_from_html([sample_html])
         expected_text = ["This is a sample paragraph."]

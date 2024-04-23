@@ -6,7 +6,7 @@ import pickle
 import tempfile
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-# Add the parent directory of 'test' and 'util' to the Python path
+# Add the parent directory 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from web_indexer.indexer import Indexer
 

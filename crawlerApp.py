@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify, render_template, redirect
 import web_indexer.indexer as indexer
 import subprocess
 import os
-import shutil
 
 class CrawlerApp:
     def __init__(self):
@@ -13,26 +12,32 @@ class CrawlerApp:
         self.indexer = indexer.Indexer()
 
         @self.app.route('/', methods=['GET'])
-        def index():
+        def homepage():
             return render_template('index.html')
 
         @self.app.route('/runcrawler', methods=['POST'])
         def run_crawler():
             try:
-                # # shutil.rmtree(self.html_dir)
+                # Remove existing HTML files in the directory
                 self.remove_files_in_dir(self.html_dir)
+                # Get input parameters from the request for crawler
                 seed_url = request.json['seed_url']
                 max_pages = request.json['max_pages']
                 max_depth = request.json['max_depth']
+                # Execute the Scrapy crawler command in terminal
                 command = f"scrapy runspider webcrawler.py -a seed_url='{seed_url}' -a max_pages={max_pages} -a max_depth={max_depth}"
                 result = subprocess.run(command, shell=True, capture_output=True, text=True)
                 print(result)
                 # Check if html_dir is not empty
                 if not os.listdir(self.html_dir):
                     return jsonify({"error": "Invalid url unable to scrape webpage"}), 400
+                # Load HTML files into the indexer
                 self.indexer.load_html_to_indexer(self.html_dir)
+                # Build index from HTML content
                 self.indexer.build_index()
+                # Save index to disk
                 self.indexer.save_index("index.pkl")
+                # Load pickle index
                 self.indexer.load_index("index.pkl")
                 output = result.stdout
                 return jsonify({"message": "Successfully crawled webpages", "output": output})
@@ -54,25 +59,30 @@ class CrawlerApp:
                 return jsonify({'error': 'Missing or invalid JSON data'}), 400
 
     def validate_query(self, query):
+        # Check if the query is empty or contains only whitespace
         if not query.strip():
             return False
         return True
 
     def search(self, query, top_k):
+        # Search for documents relevant to the query using the indexer
         results = self.indexer.search(query, top_k)
         print("Search results:", results)
         return results
     
     def remove_files_in_dir(self,directory):
+        # Remove all files in a directory
         for filename in os.listdir(directory):
             file_path = os.path.join(directory, filename)
             if os.path.isfile(file_path):
                 os.unlink(file_path)
 
     def open_browser(self):
+        # Open the default web browser with the Flask app URL
         webbrowser.open('http://127.0.0.1:5000')
 
     def run(self):
+        # Open the web browser and run the Flask app
         self.open_browser()
         self.app.run(debug=False)
 

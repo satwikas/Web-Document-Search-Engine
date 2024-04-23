@@ -51,20 +51,20 @@
         </div>
     </div>
     <script>
-        // // Add event listener for keydown event
-        // document.addEventListener("keydown", function(event) {
-        //     // Check if the Ctrl key is pressed on Windows (keyCode 17) or the Command key on Mac (keyCode 91)
-        //     // Check if the F12 key is pressed (keyCode 123)
-        //     if ((event.ctrlKey && event.keyCode === 123) || (event.metaKey && event.keyCode === 123)) {
-        //         // Prevent the default action of the event (e.g., opening browser developer tools)
-        //         event.preventDefault();
-        //     }
-        // });
-        // // Add event listener for contextmenu event (right-click)
-        // document.addEventListener("contextmenu", function(event) {
-        //     // Prevent the default context menu from appearing
-        //     event.preventDefault();
-        // });
+        // Add event listener for keydown event
+        document.addEventListener("keydown", function(event) {
+            // Check if the Ctrl key is pressed on Windows (keyCode 17) or the Command key on Mac (keyCode 91)
+            // Check if the F12 key is pressed (keyCode 123)
+            if ((event.ctrlKey && event.keyCode === 123) || (event.metaKey && event.keyCode === 123)) {
+                // Prevent the default action of the event (e.g., opening browser developer tools)
+                event.preventDefault();
+            }
+        });
+        // Add event listener for contextmenu event (right-click)
+        document.addEventListener("contextmenu", function(event) {
+            // Prevent the default context menu from appearing
+            event.preventDefault();
+        });
         function loadWebpage() {
             var urlInput = document.getElementById('url-input').value;
             var iframeContainer = document.getElementById('iframe-container');
@@ -89,23 +89,22 @@
 
                 iframe.onload = function() {
                     console.log('iframe loaded');
-                    // Send a message to the iframe
-                    iframe.contentWindow.postMessage('checkStatus', '*');
                     // Show the search box upon successful iframe load
                     webCrawlerBox.style.display = 'block';
                 };
 
                 // Add an event listener to the iframe's onerror event
                 iframe.onerror = function() {
-                console.log('Received message from iframe:', event.data);
-                // Hide the iframe
-                iframe.style.display = 'none';
+                    // Send a message to the parent window if the iframe fails to load
+                    window.parent.postMessage("Iframe failed to load", "*");
+                    // Hide the iframe
+                    iframe.style.display = 'none';
                 };
                         // Register event listener for messages from the iframe
                 window.addEventListener('message', function(event) {
                     console.log('Received message from iframe:', event.data);
                     // Check if the message indicates that something wasn't found
-                    if (event.data === 'Not Found') {
+                    if (event.data.status === 404) {
                         // If not found, display the search box
                         webCrawlerBox.style.display = 'none';
                     }
@@ -128,6 +127,9 @@
             var urlInput = document.getElementById('url-input');
             var crawlerOutput = document.getElementById('crawler-output');
             var searchBox = document.getElementById('search-box');
+            var resultsTable = document.getElementById('results-table').getElementsByTagName('tbody')[0];
+            document.getElementById('query').value= '';
+            resultsTable.innerHTML = '';
             if (urlInput) {
             var seedUrl = urlInput.value;
             var maxPages = document.getElementById('max_pages').value;

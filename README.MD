@@ -50,6 +50,8 @@ SOFTWARE COMMANDS:
 1) Running the Application:
 Navigate to the directory which contains the project files and execute the command "python3 crawlerApp.py" to start the Flask web application.
 
+python3 crawlerApp.py
+
 ![Flask App](screenshots/flaskapp.png)
 
 2) Enter the URL of the website that you want to scrape and click on the button "Load Webpage" to view the contents of the webpage. Using the website "https://quotes.toscrape.com/" to scrap in this case.
